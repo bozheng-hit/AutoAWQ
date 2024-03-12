@@ -3,6 +3,68 @@ import torch.nn as nn
 from awq.modules.fused.attn import QuantAttentionFused
 
 
+class Qwen2MoeBlock(nn.Moduel):
+    def __init__(
+        self,
+        hidden_size,
+        n_heads,
+        n_kv_heads,
+        qkv_layer,
+        o_proj,
+        moe,
+        norm_1,
+        norm_2,
+        shared_expert,
+        shared_expert_gate,
+        dev,
+        max_seq_len,
+        rope_theta,
+    ):
+        super().__init__()
+        self.n_heads = n_heads
+        self.n_kv_heads = n_kv_heads
+        self.hidden_size = hidden_size
+        self.norm_1 = norm_1.to(dev)
+        self.attn = QuantAttentionFused(
+            self.hidden_size,
+            self.n_heads,
+            self.n_kv_heads,
+            qkv_layer,
+            o_proj,
+            dev=dev,
+            max_seq_len=max_seq_len,
+            use_alibi=False,
+            rope_theta=rope_theta,
+        ).to(dev)
+        self.norm_2 = norm_2.to(dev)
+        self.moe = moe
+        self.shared_expert = shared_expert.to(dev)
+        self.shared_expert_gate = shared_expert_gate.to(dev)
+        self.device = dev
+
+    def forward(
+        self,
+        hidden_states,
+        past_key_value,
+        attn_bias=None,
+        attention_mask=None,
+        is_causal=None,
+    ):
+        norm_out = self.norm_1(hidden_states)
+        attn_output, _, past_key_value = self.attn.forward(
+            hidden_states=norm_out,
+            past_key_value=past_key_value,
+            attention_mask=attention_mask,
+        )
+
+        h = hidden_states.to(attn_output.device) + attn_output
+        out = self.moe.forward(self.norm_2(h), renormalize=False)
+        out = out + self.shared_expert_gate(h) * self.shared_expert(h)
+        out = h + out
+
+        return out, None, past_key_value
+
+
 class MixtralBlock(nn.Module):
     def __init__(
         self,

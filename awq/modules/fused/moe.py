@@ -23,7 +23,7 @@ class FusedSparseMoeBlock(torch.nn.Module):
         self.ws = ws
         self.w2s = w2s
 
-    def forward(self, hidden_states: torch.Tensor) -> torch.Tensor:
+    def forward(self, hidden_states: torch.Tensor, renormalize: bool = True) -> torch.Tensor:
         batch_size, sequence_length, hidden_dim = hidden_states.shape
         hidden_states = hidden_states.view(-1, hidden_dim)
 
@@ -36,7 +36,7 @@ class FusedSparseMoeBlock(torch.nn.Module):
             hidden_states,
             router_logits,
             self.top_k,
-            renormalize=True,
+            renormalize=renormalize,
         )
 
         return final_hidden_states.view(batch_size, sequence_length, hidden_dim)
