@@ -17,7 +17,7 @@ from awq.modules.fused.norm import FasterTransformerRMSNorm
 class Qwen2MoeAWQForCausalLM(BaseAWQForCausalLM):
     layer_type = "Qwen2MoeDecoderLayer"
     max_seq_len_key = "max_position_embeddings"
-    modules_to_not_convert = ["gate"]
+    modules_to_not_convert = ["mlp.gate", "mlp.shared_expert_gate"]
 
     @staticmethod
     def fuse_layers(model: OldQwen2MoeForCausalLM):
@@ -100,7 +100,7 @@ class Qwen2MoeAWQForCausalLM(BaseAWQForCausalLM):
         )
 
         # routed out
-        for i, expert in enumerate(module.block_sparse_moe.experts):
+        for i, expert in enumerate(module.mlp.experts):
             layers.append(
                 dict(
                     prev_op=expert.up_proj,

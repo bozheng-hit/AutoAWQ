@@ -3,7 +3,7 @@ import torch.nn as nn
 from awq.modules.fused.attn import QuantAttentionFused
 
 
-class Qwen2MoeBlock(nn.Moduel):
+class Qwen2MoeBlock(nn.Module):
     def __init__(
         self,
         hidden_size,

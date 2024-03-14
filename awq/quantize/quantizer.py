@@ -518,6 +518,12 @@ class AwqQuantizer:
                 "block_sparse_moe": layer.block_sparse_moe,
             }
 
+        if self.awq_model.model_type == "qwen2_moe":
+            named_linears = {
+                **named_linears,
+                "mlp": layer.mlp,
+            }
+
         for name in named_linears:
             handles.append(
                 named_linears[name].register_forward_hook(
