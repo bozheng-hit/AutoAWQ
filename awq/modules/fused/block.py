@@ -59,7 +59,7 @@ class Qwen2MoeBlock(nn.Module):
 
         h = hidden_states.to(attn_output.device) + attn_output
         out = self.moe.forward(self.norm_2(h), renormalize=False)
-        out = out + self.shared_expert_gate(h) * self.shared_expert(h)
+        out = out + self.shared_expert_gate(self.norm_2(h)) * self.shared_expert(self.norm_2(h))
         out = h + out
 
         return out, None, past_key_value
