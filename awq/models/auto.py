@@ -25,6 +25,8 @@ AWQ_CAUSAL_LM_MODEL_MAP = {
     "qwen2": Qwen2AWQForCausalLM,
     "qwen2_moe": Qwen2MoeAWQForCausalLM,
     "gemma": GemmaAWQForCausalLM,
+    "stablelm": StableLmAWQForCausalLM,
+    "starcoder2": Starcoder2AWQForCausalLM,
 }
 
 
@@ -52,6 +54,7 @@ class AutoAWQForCausalLM:
         trust_remote_code=True,
         safetensors=True,
         device_map=None,
+        download_kwargs=None,
         **model_init_kwargs,
     ) -> BaseAWQForCausalLM:
         model_type = check_and_get_model_type(
@@ -64,6 +67,7 @@ class AutoAWQForCausalLM:
             trust_remote_code=trust_remote_code,
             safetensors=safetensors,
             device_map=device_map,
+            download_kwargs=download_kwargs,
             **model_init_kwargs,
         )
 
@@ -81,6 +85,7 @@ class AutoAWQForCausalLM:
         safetensors=True,
         device_map="balanced",
         offload_folder=None,
+        download_kwargs=None,
         **config_kwargs,
     ) -> BaseAWQForCausalLM:
         os.environ["AWQ_BATCH_SIZE"] = str(batch_size)
@@ -105,5 +110,6 @@ class AutoAWQForCausalLM:
             safetensors=safetensors,
             device_map=device_map,
             offload_folder=offload_folder,
+            download_kwargs=download_kwargs,
             **config_kwargs,
         )

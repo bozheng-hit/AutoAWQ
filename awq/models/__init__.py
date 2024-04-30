@@ -16,3 +16,5 @@ from .mixtral import MixtralAWQForCausalLM
 from .qwen2 import Qwen2AWQForCausalLM
 from .qwen2_moe import Qwen2MoeAWQForCausalLM
 from .gemma import GemmaAWQForCausalLM
+from .stablelm import StableLmAWQForCausalLM
+from .starcoder2 import Starcoder2AWQForCausalLM
